@@ -6,9 +6,8 @@ from services.diarization import get_diarization_service
 
 class JobManager:
     def __init__(self):
-        # Transciption initialized globally to save load time
+        # We don't load models here anymore. They stay in disk until needed.
         self.transcription = transcription_service
-        # Diarization lazy loaded or initialized here
         self.diarization = get_diarization_service()
         
     def process_request(self, file_path: str, num_speakers: int = None, language: str = None):
@@ -22,6 +21,9 @@ class JobManager:
         full_text = ""
         
         # 1. Diarization (Find when people are talking)
+        # Load diarization model only
+        self.diarization.load_model()
+        
         if self.diarization.pipeline:
             print("JobManager: 1/3 Starting Diarization...")
             try:
@@ -32,10 +34,12 @@ class JobManager:
         else:
             print("JobManager: 1/3 Skipping Diarization (No Pipeline or Error). Defaulting to whole-file.")
             base_segments = [{"start": 0.0, "end": float('inf'), "speaker": "UNKNOWN"}]
+            
+        # IMPORTANT: Force unload Pyannote to free RAM/VRAM before loading Whisper
+        self.diarization.unload_model()
 
         # 2. Slice and Transcribe
         print("JobManager: 2/3 Slicing and Transcribing...")
-        # Load audio once with pydub for slicing
         try:
             audio = AudioSegment.from_file(file_path)
             audio_duration_ms = len(audio)
@@ -43,6 +47,9 @@ class JobManager:
              raise RuntimeError(f"Could not load audio file with pydub: {str(e)}")
 
         temp_dir = tempfile.mkdtemp()
+        
+        # Load Transcription model only after Diarization is completely wiped from RAM
+        self.transcription.load_model()
         
         try:
             for i, seg in enumerate(base_segments):
@@ -77,7 +84,10 @@ class JobManager:
                     full_text += chunk_text.strip() + " "
                     
         finally:
-            print("JobManager: 3/3 Cleaning up temporary files...")
+            print("JobManager: 3/3 Cleaning up temporary files and unloading models...")
+            # Unload Whisper model strictly to preserve memory for the OS
+            self.transcription.unload_model()
+            
             # Clean up temp files
             for file in os.listdir(temp_dir):
                 os.remove(os.path.join(temp_dir, file))

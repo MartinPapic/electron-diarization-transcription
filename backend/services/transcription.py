@@ -8,9 +8,37 @@ class TranscriptionService:
         For Phase 2 testing, we use 'tiny' and 'cpu' to ensure it runs anywhere quickly.
         In production, this should be configurable (e.g., 'base', 'cuda', 'float16').
         """
-        print(f"Loading Whisper model '{model_size}' on {device}...")
-        self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+        self.model_size = model_size
+        self.device = device
+        self.compute_type = compute_type
+        self.model = None
+
+    def load_model(self):
+        """Loads the faster-whisper model into memory."""
+        if self.model is not None:
+            return # Already loaded
+            
+        print(f"Loading Whisper model '{self.model_size}' on {self.device} into memory...")
+        self.model = WhisperModel(self.model_size, device=self.device, compute_type=self.compute_type)
         print("Whisper model loaded successfully.")
+
+    def unload_model(self):
+        """Forces the model out of memory and clears caches."""
+        if self.model is not None:
+            print("Unloading Whisper model from memory...")
+            del self.model
+            self.model = None
+            
+        import gc
+        gc.collect()
+        # Even if CPU, try to clear CUDA if it exists to be completely safe
+        try:
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                print("CUDA cache cleared after Whisper unload.")
+        except ImportError:
+            pass
 
     def transcribe(self, file_path: str, language: str = None):
         """
@@ -19,6 +47,9 @@ class TranscriptionService:
         """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Audio file not found: {file_path}")
+            
+        if not self.model:
+            raise RuntimeError("Whisper model is not loaded. Call load_model() first.")
             
         print(f"Starting transcription for {file_path}...")
         segments, info = self.model.transcribe(file_path, beam_size=5, language=language)
