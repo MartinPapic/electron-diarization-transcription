@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TranscriptionRequest, TranscriptionResponse } from '../models/types';
+import type { TranscriptionRequest, TranscriptionResponse } from '../models/types';
 
 // En desarrollo el backend FastAPI correrá en el 8000.
 // En producción, el .exe empaquetado del backend también debería usar el mismo u otro dinámico.

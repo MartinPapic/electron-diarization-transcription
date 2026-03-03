@@ -1,14 +1,41 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawn, ChildProcess } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null;
+let apiProcess: ChildProcess | null = null;
 
 // Production flag
 const isDev = !app.isPackaged;
+
+function startBackend() {
+  if (isDev) {
+    // En desarrollo, lanzar a través de Python directamente usando el venv local
+    apiProcess = spawn(path.join(__dirname, '../../backend/venv/Scripts/python.exe'), ['-m', 'uvicorn', 'main:app', '--port', '8000'], {
+      cwd: path.join(__dirname, '../../backend'),
+      env: process.env
+    });
+  } else {
+    // En producción, el .exe de PyInstaller estará empaquetado como Extra Resource
+    const backendPath = path.join(process.resourcesPath, 'backend_api', 'backend_api.exe');
+    apiProcess = spawn(backendPath, [], { env: process.env });
+  }
+
+  apiProcess.stdout?.on('data', (data) => console.log(`[FastAPI]: ${data}`));
+  apiProcess.stderr?.on('data', (data) => console.error(`[FastAPI Error]: ${data}`));
+}
+
+function killBackend() {
+  if (apiProcess) {
+    console.log("Terminando proceso FastAPI...");
+    apiProcess.kill();
+    apiProcess = null;
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -40,6 +67,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  startBackend();
   createWindow();
 
   app.on('activate', () => {
@@ -52,7 +80,12 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  killBackend();
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('will-quit', () => {
+  killBackend();
 });

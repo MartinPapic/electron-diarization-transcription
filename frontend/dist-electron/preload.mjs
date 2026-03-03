@@ -1,6 +1,1 @@
-"use strict";
-const electron = require("electron");
-electron.contextBridge.exposeInMainWorld("electronAPI", {
-  // Example IPC channel mapping:
-  // sendMessage: (message: string) => ipcRenderer.send('message', message),
-});
+"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("electronAPI",{});

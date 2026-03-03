@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTranscriptionViewModel } from '../viewmodels/TranscriptionViewModel';
-import { FileAudio, UploadCloud, Settings, Loader2, PlayCircle, AlertCircle } from 'lucide-react';
+import { ExportService } from '../services/ExportService';
+import { FileAudio, UploadCloud, Settings, Loader2, PlayCircle, AlertCircle, FileText, FileJson, FileType2 } from 'lucide-react';
 
 export function TranscriptionView() {
     const { isProcessing, result, error, processAudio, reset } = useTranscriptionViewModel();
@@ -167,14 +168,36 @@ export function TranscriptionView() {
                 {/* Result State */}
                 {result && !isProcessing && (
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div className="border-b border-slate-100 p-4 bg-slate-50 flex justify-between items-center">
+                        <div className="border-b border-slate-100 p-4 bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <h3 className="font-semibold text-slate-700">Resultados de Transcripción</h3>
-                            <button
-                                onClick={() => { reset(); setSelectedFile(null); }}
-                                className="text-sm text-primary hover:underline font-medium"
-                            >
-                                Procesar otro archivo
-                            </button>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                    onClick={() => ExportService.exportTXT(result)}
+                                    className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm hover:bg-slate-50 flex items-center gap-1.5 transition-colors"
+                                >
+                                    <FileText size={16} /> .TXT
+                                </button>
+                                <button
+                                    onClick={() => ExportService.exportSRT(result)}
+                                    className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm hover:bg-slate-50 flex items-center gap-1.5 transition-colors"
+                                >
+                                    <FileType2 size={16} /> .SRT
+                                </button>
+                                <button
+                                    onClick={() => ExportService.exportJSON(result)}
+                                    className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm hover:bg-slate-50 flex items-center gap-1.5 transition-colors"
+                                >
+                                    <FileJson size={16} /> .JSON
+                                </button>
+                                <div className="w-px h-6 bg-slate-200 mx-2 hidden md:block"></div>
+                                <button
+                                    onClick={() => { reset(); setSelectedFile(null); }}
+                                    className="text-sm px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium transition-colors"
+                                >
+                                    Procesar nuevo archivo
+                                </button>
+                            </div>
                         </div>
 
                         <div className="p-6">

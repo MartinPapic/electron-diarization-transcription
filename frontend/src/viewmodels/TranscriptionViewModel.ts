@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ApiService } from '../services/ApiService';
-import { TranscriptionResponse } from '../models/types';
+import type { TranscriptionResponse } from '../models/types';
 
 export function useTranscriptionViewModel() {
     const [isProcessing, setIsProcessing] = useState(false);
