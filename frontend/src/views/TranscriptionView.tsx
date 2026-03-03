@@ -166,7 +166,7 @@ export function TranscriptionView() {
                             {selectedFile && (
                                 <button
                                     onClick={startTranscription}
-                                    className="w-full py-4 bg-primary text-white rounded-xl font-medium tracking-wide shadow-sm hover:shadow-md hover:bg-blue-600 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-blue-600 text-white rounded-xl font-medium tracking-wide shadow-sm hover:shadow-md hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                                 >
                                     <PlayCircle size={20} />
                                     Iniciar Procesamiento AI
