@@ -12,6 +12,7 @@ export interface TranscriptionResponse {
 
 export interface TranscriptionRequest {
     file_path: string;
-    num_speakers?: number;
-    language?: string;
+    num_speakers: number;
+    language: string;
+    hf_token?: string;
 }

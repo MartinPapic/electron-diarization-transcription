@@ -6,8 +6,14 @@ import type { TranscriptionRequest, TranscriptionResponse } from '../models/type
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 export class ApiService {
-    static async transcribe(request: TranscriptionRequest): Promise<TranscriptionResponse> {
-        const response = await axios.post<TranscriptionResponse>(`${API_BASE_URL}/transcribe`, request);
+    static async transcribe(filePath: string, numSpeakers: number, language: string, hfToken?: string): Promise<TranscriptionResponse> {
+        const payload: TranscriptionRequest = {
+            file_path: filePath,
+            num_speakers: numSpeakers,
+            language: language,
+            hf_token: hfToken
+        };
+        const response = await axios.post<TranscriptionResponse>(`${API_BASE_URL}/transcribe`, payload);
         return response.data;
     }
 

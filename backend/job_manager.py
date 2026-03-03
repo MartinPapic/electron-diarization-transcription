@@ -10,7 +10,7 @@ class JobManager:
         self.transcription = transcription_service
         self.diarization = get_diarization_service()
         
-    def process_request(self, file_path: str, num_speakers: int = None, language: str = None):
+    def process_request(self, file_path: str, num_speakers: int = None, language: str = None, hf_token: str = None):
         """
         Orchestrates the entire diarization & transcription workflow 
         using the Diarize -> Slice -> Transcribe pattern.
@@ -21,6 +21,9 @@ class JobManager:
         full_text = ""
         
         # 1. Diarization (Find when people are talking)
+        if hf_token:
+            self.diarization.auth_token = hf_token
+            
         # Load diarization model only
         self.diarization.load_model()
         

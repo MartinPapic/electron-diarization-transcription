@@ -29,7 +29,8 @@ async def transcribe(request: TranscriptionRequest):
         segments, full_text = job_manager.process_request(
             file_path=request.file_path, 
             num_speakers=request.num_speakers if request.num_speakers > 0 else None,
-            language=request.language if request.language != "auto" else None
+            language=request.language if request.language != "auto" else None,
+            hf_token=request.hf_token
         )
         
         return TranscriptionResponse(

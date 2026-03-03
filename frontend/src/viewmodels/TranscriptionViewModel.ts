@@ -7,22 +7,19 @@ export function useTranscriptionViewModel() {
     const [result, setResult] = useState<TranscriptionResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const processAudio = useCallback(async (filePath: string, numSpeakers: number = 0, language: string = 'es') => {
+    const processAudio = useCallback(async (filePath: string, numSpeakers: number = 0, language: string = 'es', hfToken: string = '') => {
         setIsProcessing(true);
         setError(null);
         setResult(null);
 
         try {
-            const response = await ApiService.transcribe({
-                file_path: filePath,
-                num_speakers: numSpeakers,
-                language
-            });
+            const response = await ApiService.transcribe(filePath, numSpeakers, language, hfToken);
             setResult(response);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as any;
             setError(
-                err.response?.data?.detail ||
-                err.message ||
+                error.response?.data?.detail ||
+                error.message ||
                 'Ocurrió un error en el backend local.'
             );
         } finally {

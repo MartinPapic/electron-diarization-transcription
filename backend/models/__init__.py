@@ -5,6 +5,7 @@ class TranscriptionRequest(BaseModel):
     file_path: str
     num_speakers: int = 1
     language: str = "es"
+    hf_token: str | None = None
 
 class Segment(BaseModel):
     start: float

@@ -10,6 +10,13 @@ export function TranscriptionView() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [numSpeakers, setNumSpeakers] = useState<number>(0);
     const [language, setLanguage] = useState<string>('es');
+    const [hfToken, setHfToken] = useState<string>(() => localStorage.getItem('hf_token') || '');
+
+    const handleHfTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setHfToken(val);
+        localStorage.setItem('hf_token', val);
+    };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +42,7 @@ export function TranscriptionView() {
 
         // In Electron, File objects have a 'path' property that contains the absolute path.
         // We cast it to any because the standard TS DOM type doesn't include 'path'.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const filePath = (selectedFile as any).path;
 
         if (!filePath) {
@@ -42,7 +50,7 @@ export function TranscriptionView() {
             return;
         }
 
-        processAudio(filePath, numSpeakers, language);
+        processAudio(filePath, numSpeakers, language, hfToken);
     };
 
     return (
@@ -94,6 +102,17 @@ export function TranscriptionView() {
                                     <option value="en">Inglés</option>
                                     <option value="fr">Francés</option>
                                 </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-600">HuggingFace Token</label>
+                                <input
+                                    type="password"
+                                    value={hfToken}
+                                    onChange={handleHfTokenChange}
+                                    placeholder="hf_..."
+                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono text-sm"
+                                />
                             </div>
                         </div>
 
