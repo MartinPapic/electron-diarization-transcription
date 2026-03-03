@@ -1,1 +1,1 @@
-"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("electronAPI",{});
+"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("electronAPI",{getPathForFile:t=>e.webUtils.getPathForFile(t)});

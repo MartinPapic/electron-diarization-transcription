@@ -1,8 +1,7 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, webUtils } from 'electron';
 
 // Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
+// Electron APIs without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
-    // Example IPC channel mapping:
-    // sendMessage: (message: string) => ipcRenderer.send('message', message),
+    getPathForFile: (file: File) => webUtils.getPathForFile(file),
 });

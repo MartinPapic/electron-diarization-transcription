@@ -3,6 +3,15 @@ import { useTranscriptionViewModel } from '../viewmodels/TranscriptionViewModel'
 import { ExportService } from '../services/ExportService';
 import { FileAudio, UploadCloud, Settings, Loader2, PlayCircle, AlertCircle, FileText, FileJson, FileType2 } from 'lucide-react';
 
+// Declare the electronAPI exposed by preload
+declare global {
+    interface Window {
+        electronAPI: {
+            getPathForFile: (file: File) => string;
+        };
+    }
+}
+
 export function TranscriptionView() {
     const { isProcessing, result, error, processAudio, reset } = useTranscriptionViewModel();
 
@@ -40,10 +49,13 @@ export function TranscriptionView() {
     const startTranscription = () => {
         if (!selectedFile) return;
 
-        // In Electron, File objects have a 'path' property that contains the absolute path.
-        // We cast it to any because the standard TS DOM type doesn't include 'path'.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const filePath = (selectedFile as any).path;
+        // Use Electron's webUtils via preload to get the absolute path securely
+        let filePath: string | undefined;
+        try {
+            filePath = window.electronAPI.getPathForFile(selectedFile);
+        } catch {
+            filePath = undefined;
+        }
 
         if (!filePath) {
             alert("Error: No se pudo obtener la ruta absoluta del archivo.");
@@ -59,7 +71,7 @@ export function TranscriptionView() {
 
                 {/* Header */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
-                    <div className="bg-primary/10 p-3 rounded-xl text-primary flex-shrink-0">
+                    <div className="bg-blue-50 p-3 rounded-xl text-blue-600 flex-shrink-0">
                         <FileAudio size={28} />
                     </div>
                     <div>
@@ -86,7 +98,7 @@ export function TranscriptionView() {
                                     value={numSpeakers || ''}
                                     onChange={(e) => setNumSpeakers(parseInt(e.target.value) || 0)}
                                     placeholder="Automático (0)"
-                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                                 />
                                 <p className="text-xs text-slate-400">Deja en 0 o vacío para detección automática.</p>
                             </div>
@@ -96,7 +108,7 @@ export function TranscriptionView() {
                                 <select
                                     value={language}
                                     onChange={(e) => setLanguage(e.target.value)}
-                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
                                 >
                                     <option value="es">Español</option>
                                     <option value="en">Inglés</option>
@@ -111,7 +123,7 @@ export function TranscriptionView() {
                                     value={hfToken}
                                     onChange={handleHfTokenChange}
                                     placeholder="hf_..."
-                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-mono text-sm"
+                                    className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-mono text-sm"
                                 />
                             </div>
                         </div>
@@ -119,7 +131,7 @@ export function TranscriptionView() {
                         {/* Dropzone */}
                         <div className="md:col-span-2 space-y-4">
                             <div
-                                className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-10 flex flex-col items-center justify-center text-center hover:bg-slate-50 hover:border-primary cursor-pointer transition-all group min-h-[300px]"
+                                className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-10 flex flex-col items-center justify-center text-center hover:bg-slate-50 hover:border-blue-500 cursor-pointer transition-all group min-h-[300px]"
                                 onClick={() => fileInputRef.current?.click()}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
@@ -132,7 +144,7 @@ export function TranscriptionView() {
                                     accept="audio/*,video/*"
                                 />
 
-                                <div className="bg-primary/5 p-4 rounded-full text-primary mb-4 group-hover:scale-110 transition-transform flex items-center justify-center">
+                                <div className="bg-blue-50 p-4 rounded-full text-blue-600 mb-4 group-hover:scale-110 transition-transform flex items-center justify-center">
                                     {selectedFile ? <FileAudio size={40} /> : <UploadCloud size={40} />}
                                 </div>
 
@@ -174,7 +186,7 @@ export function TranscriptionView() {
                 {/* Loading State */}
                 {isProcessing && (
                     <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center space-y-6">
-                        <Loader2 size={48} className="text-primary animate-spin" />
+                        <Loader2 size={48} className="text-blue-600 animate-spin" />
                         <div className="text-center">
                             <h3 className="text-xl font-semibold text-slate-800">Procesando Audio...</h3>
                             <p className="text-slate-500 mt-2 max-w-md">
@@ -212,7 +224,7 @@ export function TranscriptionView() {
                                 <div className="w-px h-6 bg-slate-200 mx-2 hidden md:block"></div>
                                 <button
                                     onClick={() => { reset(); setSelectedFile(null); }}
-                                    className="text-sm px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium transition-colors"
+                                    className="text-sm px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition-colors"
                                 >
                                     Procesar nuevo archivo
                                 </button>
