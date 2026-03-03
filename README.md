@@ -1,7 +1,7 @@
 # 🎙️ Desktop Transcription App (Electron + Pyannote + Whisper)
 
-Aplicación desktop para **diarización y transcripción automática de
-audio** utilizando arquitectura **MVVM** y procesamiento 100% local.
+Aplicación desktop para diarización y transcripción automática de audio
+utilizando arquitectura MVVM y procesamiento 100% local.
 
 ------------------------------------------------------------------------
 
@@ -9,12 +9,12 @@ audio** utilizando arquitectura **MVVM** y procesamiento 100% local.
 
 La aplicación permite:
 
--   Diarizar hablantes en un archivo de audio\
--   Transcribir cada segmento identificado\
--   Asociar texto a cada hablante con timestamps\
+-   Diarizar hablantes en un archivo de audio
+-   Transcribir cada segmento identificado
+-   Asociar texto a cada hablante con timestamps
 -   Exportar resultados en múltiples formatos
 
-### Arquitectura
+Arquitectura:
 
 Electron + React (MVVM) + FastAPI + pyannote.audio + faster-whisper
 
@@ -30,17 +30,17 @@ Todo el procesamiento se realiza localmente.
 flowchart LR
 
 subgraph Desktop_App
-    View[TranscriptionView\n(React)]
-    ViewModel[TranscriptionViewModel\n(TypeScript)]
-    IPC[Electron IPC]
+    View["TranscriptionView<br/>(React)"]
+    ViewModel["TranscriptionViewModel<br/>(TypeScript)"]
+    IPC["Electron IPC"]
 end
 
 subgraph Backend_Python
-    API[FastAPI API]
-    JobManager[Job Manager]
-    Diarization[DiarizationService\npyannote.audio]
-    Transcription[TranscriptionService\nfaster-whisper]
-    Merge[MergeService]
+    API["FastAPI API"]
+    JobManager["Job Manager"]
+    Diarization["DiarizationService<br/>pyannote.audio"]
+    Transcription["TranscriptionService<br/>faster-whisper"]
+    Merge["MergeService"]
 end
 
 View --> ViewModel
@@ -55,6 +55,7 @@ Transcription --> Merge
 
 Merge --> API
 API --> ViewModel
+API --> ViewModel
 ViewModel --> View
 ```
 
@@ -64,17 +65,17 @@ ViewModel --> View
 
 ## Frontend
 
--   **View (React)** → Renderiza estado\
--   **ViewModel (TypeScript)** → Maneja estado y lógica de UI\
--   **Model (Backend API)** → Procesamiento ML
+-   View (React) → Renderiza estado
+-   ViewModel (TypeScript) → Maneja estado y lógica de UI
+-   Model (Backend API) → Procesamiento ML
 
 ## Backend
 
 Separación por servicios:
 
--   DiarizationService\
--   TranscriptionService\
--   MergeService\
+-   DiarizationService
+-   TranscriptionService
+-   MergeService
 -   JobManager
 
 ------------------------------------------------------------------------
@@ -85,39 +86,37 @@ Separación por servicios:
 classDiagram
 
 class TranscriptionRequest {
-    +file_path: str
-    +num_speakers: int
-    +language: str
+    file_path
+    num_speakers
+    language
 }
 
 class TranscriptionResponse {
-    +segments: List~Segment~
-    +full_text: str
+    segments
+    full_text
 }
 
 class Segment {
-    +start: float
-    +end: float
-    +speaker: str
-    +text: str
+    start
+    end
+    speaker
+    text
 }
 
 class DiarizationService {
-    -pipeline
-    +diarize(file_path, num_speakers)
+    diarize()
 }
 
 class TranscriptionService {
-    -model
-    +transcribe_segment(waveform)
+    transcribe_segment()
 }
 
 class MergeService {
-    +merge_segments(List~Segment~)
+    merge_segments()
 }
 
 class JobManager {
-    +process(request)
+    process()
 }
 
 JobManager --> DiarizationService
@@ -135,19 +134,19 @@ JobManager --> TranscriptionResponse
 classDiagram
 
 class TranscriptionView {
-    +render()
-    +onUpload()
+    render()
+    onUpload()
 }
 
 class TranscriptionViewModel {
-    +segments
-    +fullText
-    +isProcessing
-    +process(file)
+    segments
+    fullText
+    isProcessing
+    process()
 }
 
 class ApiService {
-    +upload(file)
+    upload()
 }
 
 TranscriptionView --> TranscriptionViewModel
@@ -160,30 +159,30 @@ TranscriptionViewModel --> ApiService
 
 ## Procesamiento
 
--   **RF1:** Cargar archivos WAV, MP3 o M4A.\
--   **RF2:** Permitir definir número de hablantes.\
--   **RF3:** Realizar diarización.\
--   **RF4:** Transcribir cada segmento.\
--   **RF5:** Asociar texto a hablante con timestamps.
+-   RF1: Cargar archivos WAV, MP3 o M4A
+-   RF2: Permitir definir número de hablantes
+-   RF3: Realizar diarización
+-   RF4: Transcribir cada segmento
+-   RF5: Asociar texto a hablante con timestamps
 
 ## Exportación
 
--   **RF6:** Exportar en TXT.\
--   **RF7:** Exportar en SRT.\
--   **RF8:** Exportar en JSON.\
--   **RF9:** Copiar texto completo al portapapeles.
+-   RF6: Exportar en TXT
+-   RF7: Exportar en SRT
+-   RF8: Exportar en JSON
+-   RF9: Copiar texto completo al portapapeles
 
 ## Visualización
 
--   **RF10:** Mostrar progreso en tiempo real.\
--   **RF11:** Visualizar segmentos por hablante.\
--   **RF12:** Permitir renombrar hablantes manualmente.
+-   RF10: Mostrar progreso en tiempo real
+-   RF11: Visualizar segmentos por hablante
+-   RF12: Permitir renombrar hablantes manualmente
 
 ## Configuración
 
--   **RF13:** Seleccionar modelo Whisper.\
--   **RF14:** Seleccionar idioma.\
--   **RF15:** Detectar GPU automáticamente.
+-   RF13: Seleccionar modelo Whisper
+-   RF14: Seleccionar idioma
+-   RF15: Detectar GPU automáticamente
 
 ------------------------------------------------------------------------
 
@@ -191,41 +190,41 @@ TranscriptionViewModel --> ApiService
 
 ## Rendimiento
 
--   **RNF1:** Procesar 1 hora de audio en \< 25 minutos con GPU 4GB.\
--   **RNF2:** Evitar uso simultáneo intensivo de GPU.\
--   **RNF3:** Uso máximo de RAM \< 20GB.
+-   RNF1: Procesar 1 hora de audio en menos de 25 minutos con GPU 4GB
+-   RNF2: Evitar uso simultáneo intensivo de GPU
+-   RNF3: Uso máximo de RAM menor a 20GB
 
 ## Seguridad
 
--   **RNF4:** Procesamiento 100% local.\
--   **RNF5:** Tokens almacenados como variables de entorno.
+-   RNF4: Procesamiento 100% local
+-   RNF5: Tokens almacenados como variables de entorno
 
 ## Arquitectura
 
--   **RNF6:** Seguir patrón MVVM en frontend.\
--   **RNF7:** Backend modular por servicios.\
--   **RNF8:** Permitir reemplazo del motor ASR sin modificar UI.
+-   RNF6: Seguir patrón MVVM en frontend
+-   RNF7: Backend modular por servicios
+-   RNF8: Permitir reemplazo del motor ASR sin modificar UI
 
 ## Escalabilidad
 
--   **RNF9:** Soporte para despliegue en Docker.\
--   **RNF10:** Soporte futuro para procesamiento batch.
+-   RNF9: Soporte para despliegue en Docker
+-   RNF10: Soporte futuro para procesamiento batch
 
 ## Usabilidad
 
--   **RNF11:** Interfaz simple para usuarios no técnicos.\
--   **RNF12:** Indicador de progreso en tiempo real.
+-   RNF11: Interfaz simple para usuarios no técnicos
+-   RNF12: Indicador de progreso en tiempo real
 
 ------------------------------------------------------------------------
 
 # ⚡ Pipeline de Procesamiento
 
-1.  Usuario carga archivo\
-2.  FastAPI recibe request\
-3.  Diarización en CPU\
-4.  Transcripción en GPU\
-5.  Merge de segmentos\
-6.  Respuesta JSON estructurada\
+1.  Usuario carga archivo
+2.  FastAPI recibe request
+3.  Diarización en CPU
+4.  Transcripción en GPU
+5.  Merge de segmentos
+6.  Respuesta JSON estructurada
 7.  Renderizado en UI
 
 ------------------------------------------------------------------------
@@ -234,34 +233,34 @@ TranscriptionViewModel --> ApiService
 
 ## Frontend
 
--   Electron\
--   React\
--   TypeScript\
+-   Electron
+-   React
+-   TypeScript
 -   IPC
 
 ## Backend
 
--   FastAPI\
--   pyannote.audio\
--   faster-whisper\
--   PyTorch\
+-   FastAPI
+-   pyannote.audio
+-   faster-whisper
+-   PyTorch
 -   FFmpeg
 
 ------------------------------------------------------------------------
 
 # 🚀 Roadmap Futuro
 
--   Persistencia con SQLite\
--   Historial de proyectos\
--   Sistema de licencias\
--   Cola de trabajos asíncronos\
--   Arquitectura plugin para motores ASR\
+-   Persistencia con SQLite
+-   Historial de proyectos
+-   Sistema de licencias
+-   Cola de trabajos asíncronos
+-   Arquitectura plugin para motores ASR
 -   Versión SaaS futura
 
 ------------------------------------------------------------------------
 
 # 📌 Objetivo del Proyecto
 
-Construir una herramienta profesional de **transcripción y análisis
-cualitativo automatizado**, con arquitectura limpia, escalable y
-preparada para comercialización.
+Construir una herramienta profesional de transcripción y análisis
+cualitativo automatizado, con arquitectura limpia, escalable y preparada
+para comercialización.
