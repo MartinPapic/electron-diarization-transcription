@@ -32,11 +32,20 @@ class JobManager:
             try:
                 base_segments = self.diarization.diarize(file_path, num_speakers)
             except Exception as e:
-                print(f"JobManager: Diarization failed ({e}). Falling back to whole-file transcription.")
-                base_segments = [{"start": 0.0, "end": float('inf'), "speaker": "UNKNOWN"}]
+                # Si la diarización fue solicitada pero falló, DEBEMOS informar el por qué.
+                # No caemos a UNKNOWN silenciosamente si el pipeline existe pero la ejecución falló.
+                print(f"JobManager: Diarization execution failed: {e}")
+                raise RuntimeError(f"Fallo en la diarización: {str(e)}")
         else:
-            print("JobManager: 1/3 Skipping Diarization (No Pipeline or Error). Defaulting to whole-file.")
+            # Si no hay pipeline, es que la CARGA falló (token, internet, etc.)
+            print("JobManager: 1/3 Skipping Diarization (No Pipeline initialized).")
+            # Podríamos lanzar un error aquí también si queremos forzar el uso de diarización.
+            # Pero para ser flexibles, si no se configuró el token, cae a UNKNOWN.
+            # Sin embargo, si el usuario PUSO un token y falló la carga, DiarizationService debería haber reportado algo.
+            fallback_msg = "Diarización omitida (Revisa tu HF_AUTH_TOKEN y acepta términos)"
             base_segments = [{"start": 0.0, "end": float('inf'), "speaker": "UNKNOWN"}]
+            # Informamos en el log
+            print(f"JobManager: Warning! {fallback_msg}")
             
         # IMPORTANT: Force unload Pyannote to free RAM/VRAM before loading Whisper
         self.diarization.unload_model()
